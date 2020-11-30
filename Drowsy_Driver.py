@@ -1,5 +1,5 @@
 
-
+#Kütüphaneler
 from scipy.spatial import distance as dist
 from imutils.video import VideoStream
 from imutils import face_utils
@@ -32,12 +32,12 @@ def eye_aspect_ratio(eye):
     B = dist.euclidean(eye[2], eye[4])
 
     C = dist.euclidean(eye[0], eye[3])
-
+    #EAR Hesabı
     ear = (A + B) / (2.0 * C)
 
     return ear
 
-
+#defining eyes location
 def final_ear(shape):
     (lStart, lEnd) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
     (rStart, rEnd) = face_utils.FACIAL_LANDMARKS_IDXS["right_eye"]
@@ -68,9 +68,9 @@ def lip_distance(shape):
 
 
 
-EYE_AR_THRESH = 0.25
-EYE_AR_CONSEC_FRAMES = 30
-YAWN_THRESH = 15
+EYE_AR_THRESH = 0.25 #Göz Açıklık Thresh
+EYE_AR_CONSEC_FRAMES = 30 #kapalı kalınan süre
+YAWN_THRESH = 15 #esneme Thresh 
 alarm_status = False
 alarm_status2 = False
 saying = False
@@ -148,8 +148,7 @@ while True:
     time1 = end-start
 
 
-cv2.putText(frame, "Time: {:.2f}".format(time1),(250,250),
-            cv2.FONT_HERSHEY_COMPLEX, 0.7,(0,0,255),2)
+
 vs.release()
 print(time1)
 cv2.destroyAllWindows()
