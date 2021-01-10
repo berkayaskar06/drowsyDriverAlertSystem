@@ -41,6 +41,19 @@ def lip_distance(shape):
 
     distance = abs(top_mean[1] - low_mean[1])
     return distance
+def car_level(level, point):
+
+    cv2.putText(frame, "POINT: {.d}".format(point), (450, 400),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+    if (level == 1):
+        cv2.putText(frame, "AUTONOMOUS LEVEL 1", (450, 400),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+    if (level == 2):
+        cv2.putText(frame, "AUTONOMOUS LEVEL 2", (450, 400),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+    if (level == 3):
+        cv2.putText(frame, "AUTONOMOUS LEVEL 3", (450, 400),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
 
 foo_counter = 0
@@ -54,6 +67,8 @@ alarm_status2 = False
 saying = False
 COUNTER = 0
 TOTAL = 0
+POINT = 0
+level = 1
 
 print("-> Loading the predictor and detector...")
 detector = dlib.get_frontal_face_detector()
@@ -61,7 +76,7 @@ detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("C:\shape_predictor_68_face_landmarks.dat")
 
 print("-> Starting Video Stream")
-vs = cv2.VideoCapture("Video_2.mp4")
+vs = cv2.VideoCapture(0)
 
 result = cv2.VideoWriter('filename.avi',
                              cv2.VideoWriter_fourcc(*'MJPG'), 30
@@ -108,6 +123,7 @@ while True:
             if COUNTER >= EYE_AR_CONSEC_FRAMES_DROWSY:
                 if alarm_status == False:
                     alarm_status = True
+                    POINT = POINT + 2
                 cv2.putText(frame, "DROWSINESS ALERT!", (10, 60),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
@@ -119,12 +135,20 @@ while True:
                 alarm_status = False
 
         if (distance > YAWN_THRESH):
+            POINT = POINT +1
             cv2.putText(frame, "Yawn Alert", (10, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
             if alarm_status2 == False and saying == False:
                 alarm_status2 = True
         else:
             alarm_status2 = False
+        if POINT < 30:
+            level=1
+        if POINT >30 & POINT <60:
+            level =2
+        if POINT >60:
+            level =3
+        car_level(level,POINT)
         cv2.putText(frame, "EAR: {:.2f}".format(ear), (450, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
         cv2.putText(frame, "YAWN: {:.2f}".format(distance), (450, 60),
