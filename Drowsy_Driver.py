@@ -43,23 +43,23 @@ def lip_distance(shape):
     return distance
 def car_level(level, point):
 
-    cv2.putText(frame, "POINT: {.d}".format(point), (450, 400),
+    cv2.putText(frame, "POINT: {}".format(point), (450, 400),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
     if (level == 1):
-        cv2.putText(frame, "AUTONOMOUS LEVEL 1", (450, 400),
+        cv2.putText(frame, "AUTONOMOUS LEVEL 1", (350, 430),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
     if (level == 2):
-        cv2.putText(frame, "AUTONOMOUS LEVEL 2", (450, 400),
+        cv2.putText(frame, "AUTONOMOUS LEVEL 2", (350, 430),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
     if (level == 3):
-        cv2.putText(frame, "AUTONOMOUS LEVEL 3", (450, 400),
+        cv2.putText(frame, "AUTONOMOUS LEVEL 3", (350, 430),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
 
 foo_counter = 0
 EYE_AR=0
 EYE_AR_THRESH = 0
-EYE_AR_CONSEC_FRAMES_DROWSY = 30 #Kapalı kalan Frame Sayısı
+EYE_AR_CONSEC_FRAMES_DROWSY = 25 #Kapalı kalan Frame Sayısı
 EYE_AR_CONSEC_FRAMES_BLINK = 3 #Kapalı kalan Frame Sayısı
 YAWN_THRESH = 0
 alarm_status = False
@@ -73,14 +73,14 @@ level = 1
 print("-> Loading the predictor and detector...")
 detector = dlib.get_frontal_face_detector()
 
-predictor = dlib.shape_predictor("C:\shape_predictor_68_face_landmarks.dat")
+predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 
 print("-> Starting Video Stream")
 vs = cv2.VideoCapture(0)
 
-result = cv2.VideoWriter('filename.avi',
+result = cv2.VideoWriter('output.AVI',
                              cv2.VideoWriter_fourcc(*'MJPG'), 30
-                             , (450, 600))
+                             , (600, 450))
 print("-> Calculation eye aspect ratio keep your eyes open:")
 start_time = time.time()
 while True:
@@ -106,7 +106,7 @@ while True:
         distance = lip_distance(shape)
         if foo_counter <2:
             EYE_AR_THRESH = ear*70/100
-            YAWN_THRESH = 48
+            YAWN_THRESH = distance+ distance*30/100
 
 
         leftEyeHull = cv2.convexHull(leftEye)
@@ -123,7 +123,7 @@ while True:
             if COUNTER >= EYE_AR_CONSEC_FRAMES_DROWSY:
                 if alarm_status == False:
                     alarm_status = True
-                    POINT = POINT + 2
+                    POINT = POINT + 20
                 cv2.putText(frame, "DROWSINESS ALERT!", (10, 60),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
@@ -135,19 +135,23 @@ while True:
                 alarm_status = False
 
         if (distance > YAWN_THRESH):
-            POINT = POINT +1
+
             cv2.putText(frame, "Yawn Alert", (10, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
             if alarm_status2 == False and saying == False:
                 alarm_status2 = True
+                POINT = POINT + 10
         else:
             alarm_status2 = False
+        #Level Belirleme Bloğu
         if POINT < 30:
             level=1
         if POINT >30 & POINT <60:
             level =2
         if POINT >60:
             level =3
+        if (POINT >=100):
+            POINT = 100
         car_level(level,POINT)
         cv2.putText(frame, "EAR: {:.2f}".format(ear), (450, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
